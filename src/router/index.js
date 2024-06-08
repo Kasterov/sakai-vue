@@ -14,6 +14,26 @@ const router = createRouter({
                     component: () => import('@/views/pages/VolunteerAccount.vue')
                 },
                 {
+                    path: 'organisation/:id',
+                    name: 'organisation',
+                    component: () => import('@/views/pages/Organisation.vue')
+                },
+                {
+                    path: 'organisation-view/:id',
+                    name: 'organisationView',
+                    component: () => import('@/views/pages/OrganisationView.vue')
+                },
+                {
+                    path: 'organisations',
+                    name: 'organisations',
+                    component: () => import('@/views/pages/Organisations.vue')
+                },
+                {
+                    path: 'events',
+                    name: 'Events',
+                    component: () => import('@/views/pages/EventsCalendar.vue')
+                },
+                {
                     path: '/',
                     name: 'dashboard',
                     component: () => import('@/views/Dashboard.vue')
@@ -125,11 +145,6 @@ const router = createRouter({
                     path: '/utilities/icons',
                     name: 'icons',
                     component: () => import('@/views/utilities/Icons.vue')
-                },
-                {
-                    path: '/pages/timeline',
-                    name: 'timeline',
-                    component: () => import('@/views/pages/Timeline.vue')
                 },
                 {
                     path: '/pages/empty',

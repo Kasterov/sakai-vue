@@ -5,7 +5,7 @@ import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
     {
-        label: 'Home',
+        label: 'Домашня сторінка',
         items: [
             {label: 'Організації', icon: 'pi pi-fw pi-home', to: '/organisations' },
             {label: 'Події', icon: 'pi pi-fw pi-calendar', to: '/events' },

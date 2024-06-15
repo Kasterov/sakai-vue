@@ -5,6 +5,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import { repository } from '../../service/Repository';
 import MessageService from '../../service/MessageService';
 import interactionPlugin from '@fullcalendar/interaction';
+import bootstrapPlugin from '@fullcalendar/bootstrap';
 
 const messageService = new MessageService();
 const { getOrganisations,
@@ -191,10 +192,11 @@ const saveComment = async () => {
 }
 
 const calendarOptions = ref ({
-        plugins: [dayGridPlugin, interactionPlugin],
+        plugins: [dayGridPlugin, interactionPlugin, bootstrapPlugin],
         initialView: 'dayGridMonth',
         weekends: true,
         displayEventTime: false,
+        themeSystem: 'bootstrap5',
         headerToolbar: {
             left: 'prev,next',
             center: 'title',

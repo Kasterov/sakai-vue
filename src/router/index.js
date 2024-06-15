@@ -9,7 +9,7 @@ const router = createRouter({
             component: AppLayout,
             children: [
                 {
-                    path: 'account',
+                    path: 'account/:id',
                     name: 'account',
                     component: () => import('@/views/pages/VolunteerAccount.vue')
                 },
@@ -17,6 +17,16 @@ const router = createRouter({
                     path: 'organisation/:id',
                     name: 'organisation',
                     component: () => import('@/views/pages/Organisation.vue')
+                },
+                {
+                    path: 'donates',
+                    name: 'donates',
+                    component: () => import('@/views/pages/Donates.vue')
+                },
+                {
+                    path: 'checkcode',
+                    name: 'checkcode',
+                    component: () => import('@/views/pages/auth/CheckCode.vue')
                 },
                 {
                     path: 'organisation-view/:id',
@@ -172,12 +182,6 @@ const router = createRouter({
             path: '/pages/notfound',
             name: 'notfound',
             component: () => import('@/views/pages/NotFound.vue')
-        },
-
-        {
-            path: '/auth/login',
-            name: 'login',
-            component: () => import('@/views/pages/auth/Login.vue')
         },
         {
             path: '/auth/access',

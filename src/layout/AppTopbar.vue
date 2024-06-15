@@ -40,7 +40,8 @@ const overlayMenuItems = computed(() => {
     if(token){
         return [{
             label: 'Профіль',
-            icon: 'pi pi-id-card'
+            icon: 'pi pi-id-card',
+            command: (event) => {linkToEditAccount()}
         },
         {
             label: 'Вийти з акаунту',
@@ -83,6 +84,9 @@ const toggleMenu = (event) => {
     menu.value.toggle(event);
 };
 
+const linkToEditAccount = () => {
+    router.push(`/account/0`);
+};
 
 const topbarMenuClasses = computed(() => {
     return {
@@ -126,7 +130,7 @@ const saveVolunteer = () => {
         phone: phone.value,
         password: password.value,
         confirmPassword: password.value,
-        photo: uploadedImage.value
+        photo: volunteerImage.value
     };
 
     let res = createVolunteer(volunteer);
@@ -157,9 +161,9 @@ const genders = ref([
     { name: 'Небінарна особистість', id: 3 }
 ]);
 
-const uploadedImage = ref(null);
+const volunteerImage = ref(null);
 
-const customBase64Uploader = async (event) => {
+const customBase64UploaderVolunteer = async (event) => {
     const file = event.files[0];
     const reader = new FileReader();
     let blob = await fetch(file.objectURL).then((r) => r.blob());
@@ -176,7 +180,7 @@ const customBase64Uploader = async (event) => {
     reader.onloadend = function () {
         let base64Full = reader.result;
         avatar.value.base64 = base64Full.split(',')[1];
-        uploadedImage.value = base64Full;
+        volunteerImage.value = base64Full;
     };
 };
 
@@ -186,7 +190,7 @@ const customBase64Uploader = async (event) => {
     <Dialog header="Реєстрація" v-model:visible="registerModalOpen" :breakpoints="{ '960px': '75vw' }" :style="{ width: '50vw' }" :modal="true">
         <div class="card p-fluid">
                 <div class="field col-12 md:col-4">
-                            <Avatar :image="uploadedImage" style="width: 8rem; height: 8rem;" shape="circle"></Avatar>
+                            <Avatar :image="volunteerImage" style="width: 8rem; height: 8rem;" shape="circle"></Avatar>
                             <FileUpload
                                 class="mt-1"
                                 mode="basic"
@@ -195,7 +199,7 @@ const customBase64Uploader = async (event) => {
                                 accept="image/*"
                                 customUpload
                                 :auto="true"
-                                @uploader="customBase64Uploader"
+                                @uploader="customBase64UploaderVolunteer"
                                 />
                 </div>
                 <div class="formgrid grid">
@@ -261,10 +265,6 @@ const customBase64Uploader = async (event) => {
         </button>
 
         <div class="layout-topbar-menu" :class="topbarMenuClasses">
-            <button @click="onTopBarMenuButton()" class="p-link layout-topbar-button">
-                <i class="pi pi-calendar"></i>
-                <span>Calendar</span>
-            </button>
             <button @click="onTopBarMenuButton()" v-on:click="toggleMenu" class="p-link layout-topbar-button">
                 <i class="pi pi-user"></i>
                 <Menu ref="menu" :model="overlayMenuItems" :popup="true" />

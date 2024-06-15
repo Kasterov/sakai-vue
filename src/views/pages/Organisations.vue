@@ -35,6 +35,31 @@ const representatives = reactive([
     { name: 'XuXue Feng', image: 'xuxuefeng.png' }
 ]);
 
+
+const logo = ref(null);
+const orgImage = ref(null);
+
+const customBase64UploaderOrganisation = async (event) => {
+    const file = event.files[0];
+    const reader = new FileReader();
+    let blob = await fetch(file.objectURL).then((r) => r.blob());
+
+    reader.readAsDataURL(blob);
+
+    logo.value = {
+        name: file.name,
+        base64: "",
+        contentType: file.type,
+        expression: file.name.split('.').pop()
+    } 
+
+    reader.onloadend = function () {
+        let base64Full = reader.result;
+        logo.value.base64 = base64Full.split(',')[1];
+        orgImage.value = base64Full;
+    };
+};
+
 const customerService = new CustomerService();
 const productService = new ProductService();
 
@@ -97,7 +122,10 @@ const phone = ref(null);
 const adress = ref(null);
 const description = ref(null);
 const webSite = ref(null);
-const organisationType = ref(1);
+const organisationType = ref({
+    id: 1,
+    Type: "Неофіційна"
+});
 const goal = ref(null);
 const organisationTypes = ref([
 {
@@ -113,13 +141,14 @@ const organisationTypes = ref([
 const saveOrganisation = async () => {
     const organisationRequest = {
         organisationName: name.value,
-        organisationType: organisationType.value,
+        organisationType: organisationType.value.id,
         goal: goal.value,
         description: description.value,
         email: email.value,
         phone: phone.value,
         address: adress.value,
-        webSite: webSite.value
+        webSite: webSite.value,
+        logo: orgImage.value
     };
 
     organisations.value.push(organisationRequest);
@@ -147,6 +176,19 @@ const saveOrganisation = async () => {
                     </div>
                 </div>
                 <div class="formgrid grid">
+                    <div class="field col-12 md:col-4">
+                            <Avatar :image="orgImage" style="width: 8rem; height: 8rem;" shape="circle"></Avatar>
+                            <FileUpload
+                                class="mt-1"
+                                mode="basic"
+                                name="demo[]"
+                                url="/api/upload"
+                                accept="image/*"
+                                customUpload
+                                :auto="true"
+                                @uploader="customBase64UploaderOrganisation"
+                                />
+                    </div>
                     <div class="field col">
                         <label for="descr">Опис</label>
                         <Textarea id="descr" rows="5" v-model="description" type="text" />
@@ -208,9 +250,6 @@ const saveOrganisation = async () => {
                     <template #header>
                         <div class="flex justify-content-between flex-column sm:flex-row">
                             <Button type="button" label="Додати організацію" @click="addOrganisation()" />
-                            <IconField iconPosition="left">
-                                <InputIcon class="pi pi-search" />
-                            </IconField>
                         </div>
                     </template>
                     <Column field="organisationName" header="Назва" style="min-width: 12rem">

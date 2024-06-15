@@ -1,9 +1,16 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router'
 import { repository } from '../../service/Repository';
+import MessageService from '../../service/MessageService';
 
-const { createVolunteer } = repository();
-const saveVolunteer = () => {
+const messageService = new MessageService();
+const route = useRoute();
+const volunteerId = ref(null);
+
+const openChangePassDialog = ref(false);
+const { createVolunteer, getVolunteerById, updateVolunteer, generateCode, changePassword, checkCode  } = repository();
+const saveVolunteer = async () => {
     
     let volunteer = {
         firstName: firstName.value,
@@ -17,9 +24,69 @@ const saveVolunteer = () => {
         photo: uploadedImage.value
     };
 
+    let res = await updateVolunteer(volunteerId.value, volunteer);
 
-    let res = createVolunteer(volunteer);
+    if(res) {
+        messageService.showSuccess("Волонтера оновлено!");
+    } else {
+        messageService.showError("Волонтера не оновлено!", "виникла непердбачувана помилка!");
+    }
 };  
+
+const openChangePassFinalDialog = ref(false);
+
+const passwordChange = ref(null);
+const confirmPasswordChange = ref(null);
+
+const requestToFinalPasswordChange = async () => {
+    let res = await changePassword(passwordChange.value, confirmPasswordChange.value);
+
+    if(res) {
+        messageService.showSuccess("Ваш пароль змінено!");
+        openChangePassFinalDialog.value = false;
+        openChangePassDialog.value = false;
+    } else {
+        messageService.showError("Щось пішло не так!");
+    }
+}
+
+const code = ref(null);
+
+const requestToChangePassword = async () => {
+    let res = await checkCode(code.value);
+
+    if(res) {
+        messageService.showSuccess("Змініть ваш пароль!");
+        openChangePassFinalDialog.value = true;
+    } else {
+        messageService.showError("Код не підходить!");
+    }
+}
+
+const gerateChangePswedCode = async () => {
+    let res = await generateCode();
+
+    if(res) {
+        messageService.showSuccess("Зміна паролю!", "Код для зміни відправлено на ваш номер телефону!");
+        openChangePassDialog.value = true;
+    } else {
+        messageService.showError("Зміна паролю!", "Щось пішло не так!");
+    }
+}
+
+onMounted(async () => {
+
+    let res = await getVolunteerById(route.params.id);
+
+    volunteerId.value = res.id;
+    lastName.value = res.lastName;
+    firstName.value = res.firstName;
+    phone.value = res.phone;
+    email.value = res.email;
+    gender.value = genders.value.filter(x => x.id == res.gender)[0];
+    birthDate.value = res.dateOfBirth;
+    uploadedImage.value = res.photo;
+})
 
 const birthDate = ref(null);
 const password = ref(null);
@@ -64,6 +131,38 @@ const customBase64Uploader = async (event) => {
 
 <template>
     <div class="grid">
+        <Dialog header="Зміна паролю" v-model:visible="openChangePassDialog" :breakpoints="{ '960px': '75vw' }" :style="{ width: '20vw' }" :modal="true">
+            <div class="card p-fluid" v-if="!openChangePassFinalDialog">
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label for="name">Код з СМС</label>
+                        <InputText id="name" v-model="code" type="text" />
+                    </div>
+                </div>
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <Button label="Підтвердити" @click="requestToChangePassword()" class="mt-2 mr-2" />
+                    </div>
+                </div>
+            </div>
+            <div class="card p-fluid" v-if="openChangePassFinalDialog">
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <label for="name">Новий пароль</label>
+                        <InputText id="psw" v-model="passwordChange" type="text" />
+                    </div>
+                    <div class="field col">
+                        <label for="name">Підтвердити пароль</label>
+                        <InputText id="psw2" v-model="confirmPasswordChange" type="text" />
+                    </div>
+                </div>
+                <div class="formgrid grid">
+                    <div class="field col">
+                        <Button label="Підтвердити зміну пароля" @click="requestToFinalPasswordChange()" class="mt-2 mr-2" />
+                    </div>
+                </div>
+            </div>
+        </Dialog>
         <div class="col-12 md:col-12">
             <div class="card p-fluid">
                 <div class="field col-12 md:col-4">
@@ -112,6 +211,11 @@ const customBase64Uploader = async (event) => {
                         <div class="formgrid grid">
                             <div class="field col">
                                 <Button label="Оновити користувача" @click="saveVolunteer()" class="mt-2 mr-2" />
+                            </div>
+                        </div>
+                        <div class="formgrid grid">
+                            <div class="field col">
+                                <Button label="Змінити пароль" @click="gerateChangePswedCode()" class="mt-2 mr-2" />
                             </div>
                         </div>
                     </div>
